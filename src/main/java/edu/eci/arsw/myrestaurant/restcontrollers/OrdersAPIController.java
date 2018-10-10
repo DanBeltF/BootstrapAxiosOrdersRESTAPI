@@ -24,7 +24,6 @@ import edu.eci.arsw.myrestaurant.model.RestaurantProduct;
 import edu.eci.arsw.myrestaurant.services.OrderServicesException;
 import edu.eci.arsw.myrestaurant.services.RestaurantOrderServices;
 import edu.eci.arsw.myrestaurant.services.RestaurantOrderServicesStub;
-import java.io.IOException;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
@@ -46,7 +45,6 @@ import org.springframework.web.bind.annotation.RestController;
  * @author hcadavid
  */
 
-
 @Service
 @RestController
 @RequestMapping(value = "/orders")
@@ -57,11 +55,10 @@ public class OrdersAPIController {
             
     @RequestMapping(method = RequestMethod.GET)
     public ResponseEntity<?> manejadorGetRecursoOrdersAPI(){
-        try {   
-            //obtener datos que se enviarán a través del API
+        try {
             Set<Integer> set = ros.getTablesWithOrders();
             Map<Integer,Order> mapOrders = new ConcurrentHashMap<>();
-            for(Integer i : set){
+            for(Integer i: set){
                 mapOrders.put(i, ros.getTableOrder(i));
             }
             ObjectMapper mapper = new ObjectMapper();
@@ -73,10 +70,9 @@ public class OrdersAPIController {
         }      
     }
     
-    @RequestMapping(value="/{idmesa}")
+    @RequestMapping(value = "/{idmesa}")
     public ResponseEntity<?> manejadorGetOrder(@PathVariable Integer idmesa){
         try {   
-            //obtener datos que se enviaran a traves del API
             Map<Integer,Order> mapOrders = new ConcurrentHashMap<>();
             Order o = ros.getTableOrder(idmesa);
             if (o != null){
@@ -88,72 +84,65 @@ public class OrdersAPIController {
             else{
                 return new ResponseEntity<>("La mesa no existe o no tiene una orden asociada",HttpStatus.NOT_FOUND);
             }
-            
         } catch (JsonProcessingException ex) {
             Logger.getLogger(OrdersAPIController.class.getName()).log(Level.SEVERE, null, ex);
             return new ResponseEntity<>("Error Creando el Json",HttpStatus.NOT_FOUND);
         }
-    
     }
     
     @RequestMapping(method = RequestMethod.POST)	
-	public ResponseEntity<?> manejadorPostRecursoOrder(@RequestBody String o){
-		try {
-                    //registrar dato
-                    ObjectMapper mapper = new ObjectMapper();
-                    Order newOrder = mapper.readValue(o, Order.class);
-                    ros.addNewOrderToTable(newOrder);
-                    return new ResponseEntity<>(HttpStatus.CREATED);
-		} catch (IOException ex) {
-                    Logger.getLogger(OrdersAPIController.class.getName()).log(Level.SEVERE, null, ex);
-                    return new ResponseEntity<>("Error en entrada",HttpStatus.FORBIDDEN);            
-		} catch (OrderServicesException ex) {        
-                    Logger.getLogger(OrdersAPIController.class.getName()).log(Level.SEVERE, null, ex);
-        }           return new ResponseEntity<>("Se produjo un error en la orden",HttpStatus.FORBIDDEN);            
+    public ResponseEntity<?> manejadorPostRecursoOrder(@RequestBody String o) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            Order newOrder = mapper.readValue(o, Order.class);
+            ros.addNewOrderToTable(newOrder);
+            return new ResponseEntity<>(HttpStatus.CREATED);
+        } catch (java.io.IOException ex) {
+            Logger.getLogger(OrdersAPIController.class.getName()).log(Level.SEVERE, null, ex);
+            return new ResponseEntity<>("Error en entrada", HttpStatus.FORBIDDEN);
+        } catch (OrderServicesException ex) {
+            Logger.getLogger(OrdersAPIController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return new ResponseEntity<>("Se produjo un error en la orden", HttpStatus.FORBIDDEN);
     }
-     
-    @RequestMapping(value="/{idmesa}/total")
+    //curl -i -X POST -HContent-Type:application/json -HAccept:application/json http://localhost:8080/orders -d '{"orderAmountsMap":{"PIZZA":3,"HAMBURGER":2,"BEER":2}, "tableNumber":2}'
+    @RequestMapping(value = "/{idmesa}/total")
     public ResponseEntity<?> manejadorGetOrderTotal(@PathVariable Integer idmesa){
-        try {   
-            //obtener datos que se enviarán a través del API
-            Map<Integer,Order> mapOrders = new ConcurrentHashMap<>();
-            int o = ros.calculateTableBill(idmesa);
-                return new ResponseEntity<>(o,HttpStatus.ACCEPTED);
+        try {
+            int tot = ros.calculateTableBill(idmesa);
+            return new ResponseEntity<>(tot,HttpStatus.ACCEPTED);
         } catch (OrderServicesException ex) {
             Logger.getLogger(OrdersAPIController.class.getName()).log(Level.SEVERE, null, ex);
             return new ResponseEntity<>("La mesa no existe o no tiene una orden asociada",HttpStatus.NOT_FOUND);
         }
-    
     }
     
-    @RequestMapping(value="/{idmesa}", method = RequestMethod.PUT)	
+    @RequestMapping(value = "/{idmesa}", method = RequestMethod.PUT)	
     public ResponseEntity<?> manejadorPutRecursoProduct(@RequestBody String o, @PathVariable Integer idmesa){
-            try {
-                //registrar dato
-                ObjectMapper mapper = new ObjectMapper();
-                Map<String,Integer>  newProduct = mapper.readValue(o, ConcurrentHashMap.class);
-                Set<String> productos = newProduct.keySet();
-                Order orden = ros.getTableOrder(idmesa);
-                for(String i : productos){
-                    orden.addDish(i, newProduct.get(i));
-                }
-                return new ResponseEntity<>(HttpStatus.CREATED);
-            } catch (IOException ex) {
-                Logger.getLogger(OrdersAPIController.class.getName()).log(Level.SEVERE, null, ex);
-                return new ResponseEntity<>("Error en entrada",HttpStatus.FORBIDDEN);            
-            }           
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            Map<String, Integer> newProduct = mapper.readValue(o, ConcurrentHashMap.class);
+            Set<String> productos = newProduct.keySet();
+            Order orden = ros.getTableOrder(idmesa);
+            for (String i : productos) {
+                orden.addDish(i, newProduct.get(i));
+            }
+            return new ResponseEntity<>(HttpStatus.CREATED);
+        } catch (java.io.IOException ex) {
+            Logger.getLogger(OrdersAPIController.class.getName()).log(Level.SEVERE, null, ex);
+            return new ResponseEntity<>("Error en entrada", HttpStatus.FORBIDDEN);
+        }
     }
-        
-    @RequestMapping(method = RequestMethod.DELETE, value="/{idmesa}")
+    //curl -i -X PUT -HContent-Type:application/json -HAccept:application/json http://localhost:8080/orders/3 -d 'PIZZA'
+    @RequestMapping(value = "/{idmesa}", method = RequestMethod.DELETE)
     public ResponseEntity<?> manejadorDeleteRecursoOrder(@PathVariable Integer idmesa){
         try {   
-            int o = ros.calculateTableBill(idmesa);
             ros.releaseTable(idmesa);
-                return new ResponseEntity<>(o,HttpStatus.ACCEPTED);
+            return new ResponseEntity<>(HttpStatus.OK);
         } catch (OrderServicesException ex) {
             Logger.getLogger(OrdersAPIController.class.getName()).log(Level.SEVERE, null, ex);
             return new ResponseEntity<>("La mesa no existe o no tiene una orden asociada",HttpStatus.NOT_FOUND);
         }
-    
     }
+    //curl -i -X DELETE -HContent-Type:application/json -HAccept:application/json http://localhost:8080/orders/1
 }

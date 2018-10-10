@@ -19,13 +19,10 @@ public class ApplicationServicesTests {
 
     @Autowired
     RestaurantOrderServicesStub ros;
-    
-    
+
     @Test
     public void contextLoads() throws OrderServicesException{
-        
-        
-        
+
     }
     
     /**
@@ -40,9 +37,6 @@ public class ApplicationServicesTests {
         float fesperado = (2*12300)+(2*12300*0.19f)+(2*1300)+(2*1300*0.16f);
         int esperado = (int) fesperado;
         org.junit.Assert.assertEquals(esperado, valor);
-        
-        
-        
     }
     
     /**
@@ -58,10 +52,6 @@ public class ApplicationServicesTests {
             org.junit.Assert.fail();
         }catch(OrderServicesException e){
             org.junit.Assert.assertTrue("Debe generar excepcion", true);
-        }
-        
-        
-        
+        }       
     }
-
 }
