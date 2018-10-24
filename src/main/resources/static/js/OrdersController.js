@@ -36,18 +36,37 @@
 */
 var orders = new Array();
 
-
 // adds an order (a new table below the most recent table)
 function addOrder() {
-
+	var newOrder = {
+		"orderAmountsMap": {
+			"HOTDOG": 2,
+			"BEER": 2
+		},
+		"tableNumber": 2
+	};
+	axios.post('/orders', newOrder)
+	   .then(function (response){
+		 console.log("Added order" + "2", newOrder);
+		 window.location.reload();
+       })    
+       .catch(function (error){
+         console.log("There is a problem with our servers. We apologize for the inconvince, please try again later");
+       });
     
 }
 
 // removes an order table with a given id
 function deleteOrder(id) {
-    var tbl = document.getElementById('t' + id);
-    tbl.parentNode.removeChild(tbl);
-    console.log("Deleted table t" + id + " ->", tbl);
+	axios.delete('/orders/' + id)
+	  .then(function (response) {
+		var tbl = document.getElementById('t' + id);
+		tbl.parentNode.removeChild(tbl);
+		console.log("Deleted table t" + id + " ->", tbl);
+	  })
+	  .catch(function (error) {
+		console.log("There is a problem with our servers. We apologize for the inconvenience, please try again later");
+	  });
 }
 
 // loads the orders from the Orders API and loads the orders from the server
@@ -92,21 +111,26 @@ function loadOrders() {
 			
 			var tbdy = document.createElement('tbody');
 			
-			var keys = ["PIZZA", 3, "10000", "HOTDOG", 1, "3000", "COKE", 4, "1300"];
+			//var keys = ["PIZZA", 3, "10000", "HOTDOG", 1, "3000", "COKE", 4, "1300"];
+			var keys = ["PIZZA", "HOTDOG", "COKE"];
 			//var keys = Object.keys(orders[ord].orderAmountsMap);  // ["PIZZA", "HOTDOG", "COKE"]
 			//var values = Object.values(orders[ord].orderAmountsMap);  // [3, 1, 4]
-			var values = [3,1,4];
+			var values = [3, 1, 4];
+			var prices = [10000, 3000, 1300];
 			
-			/*for (var k = 0; k < values.length; k++) {
-				keys.splice(2*k+1, 0, values[k]);  // ["PIZZA", "3", "HOTDOG", "1", "COKE", "4"]
+			for (var q = 0; q < values.length; q++) {
+				keys.splice(2 * q + 1, 0, values[q]); // ["PIZZA", "3", "HOTDOG", "1", "COKE", "4"]
+			}
+			
+			for (var p = 1; p < values.length + 1; p++) {
+				keys.splice(p * 3 - 1, 0, prices[p - 1]); // ["PIZZA", 3, 10000, "HOTDOG", 1, 3000, "COKE", 4, 1300]
 			}
 			console.log(keys);
-			*/
 			
 			var p = 0;
 			for (var i = 0; i < values.length; i++) {
 				var tr = document.createElement('tr');
-				while (p < 3 * (i + 1)){
+				while (p < 3 * i + 1){
 					var td = document.createElement('td');
 					td.appendChild(document.createTextNode(keys[p]));
 					tr.appendChild(td);

@@ -66,7 +66,7 @@ public class OrdersAPIController {
             return new ResponseEntity<>(json,HttpStatus.ACCEPTED);
         } catch (JsonProcessingException ex) {
             Logger.getLogger(OrdersAPIController.class.getName()).log(Level.SEVERE, null, ex);
-            return new ResponseEntity<>("Error Creando el Json",HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>("Error creando el Json",HttpStatus.NOT_FOUND);
         }      
     }
     
@@ -145,4 +145,15 @@ public class OrdersAPIController {
         }
     }
     //curl -i -X DELETE -HContent-Type:application/json -HAccept:application/json http://localhost:8080/orders/1
+    
+    @RequestMapping(value = "/orders/{product}",method = RequestMethod.GET)
+    public ResponseEntity<?> manejadorGetProducto(@PathVariable String product){
+        try {
+            return new ResponseEntity<>(ros.getProductByName(product), HttpStatus.ACCEPTED);
+        } catch (Exception ex) {
+            Logger.getLogger(OrdersAPIController.class.getName()).log(Level.SEVERE, null, ex);
+            return new ResponseEntity<>("Se produjo un error obteniendo el producto", HttpStatus.NOT_FOUND);
+        }
+    }
+    
 }
