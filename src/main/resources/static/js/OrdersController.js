@@ -110,31 +110,37 @@ function loadOrders() {
 			tbl.appendChild(thd);
 			
 			var tbdy = document.createElement('tbody');
+
+			var keys = Object.keys(orders[ord].orderAmountsMap);  // ["PIZZA", "HOTDOG", "COKE"]
+			var values = Object.values(orders[ord].orderAmountsMap);  // [3, 1, 4]
+			var products = {"PIZZA": 10000, "HOTDOG": 3000, "COKE": 1300, "HAMBURGER": 12300, "BEER": 2500};
 			
-			//var keys = ["PIZZA", 3, "10000", "HOTDOG", 1, "3000", "COKE", 4, "1300"];
-			var keys = ["PIZZA", "HOTDOG", "COKE"];
-			//var keys = Object.keys(orders[ord].orderAmountsMap);  // ["PIZZA", "HOTDOG", "COKE"]
-			//var values = Object.values(orders[ord].orderAmountsMap);  // [3, 1, 4]
-			var values = [3, 1, 4];
-			var prices = [10000, 3000, 1300];
+			var prices = [];
+			
+			for (var pos in keys){
+				for(key in products) {
+					if(keys[pos] === key) {
+						prices.push(products[key]);	// [10000, 3000, 1300]
+					}
+				}
+			}
 			
 			for (var q = 0; q < values.length; q++) {
-				keys.splice(2 * q + 1, 0, values[q]); // ["PIZZA", "3", "HOTDOG", "1", "COKE", "4"]
+				keys.splice(2 * q + 1, 0, values[q]); // ["PIZZA", 3, "HOTDOG", 1, "COKE", 4]
 			}
 			
 			for (var p = 1; p < values.length + 1; p++) {
 				keys.splice(p * 3 - 1, 0, prices[p - 1]); // ["PIZZA", 3, 10000, "HOTDOG", 1, 3000, "COKE", 4, 1300]
 			}
-			console.log(keys);
 			
-			var p = 0;
+			var j = 0;
 			for (var i = 0; i < values.length; i++) {
 				var tr = document.createElement('tr');
-				while (p < 3 * i + 1){
+				while (j < 3 * (i + 1)){
 					var td = document.createElement('td');
-					td.appendChild(document.createTextNode(keys[p]));
+					td.appendChild(document.createTextNode(keys[j]));
 					tr.appendChild(td);
-					p++;
+					j++;
 				}
 				tbdy.appendChild(tr);
 			}
